@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diagram Generator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    textarea {
+      width: 100%;
+      height: 150px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-family: monospace;
+    }
+
+    button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    #diagramContainer {
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      background-color: #f9f9f9;
+    }
+
+    #downloadButtons {
+      margin-top: 20px;
+    }
+
+    #downloadButtons button {
+      margin-right: 10px;
+    }
+  </style>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script> -->
+  
+  <script>
+    window.addEventListener('error', function(e) {
+      if (e.filename.includes('html2canvas') || e.filename.includes('html2pdf')) {
+        console.error('Failed to load library:', e.filename);
+        alert('Failed to load required libraries. Please check your internet connection and try again.');
+      }
+    }, true);
+  </script>
+</head>
+<body>
+  <h1>Diagram Generator</h1>
+
+  <textarea id="mermaidInput" placeholder="Enter your Mermaid code here..."></textarea>
+  <button id="generateButton">Generate Diagram</button>
+
+    <div id="diagramContainer">
+
+    </div>
+
+  <div id="downloadButtons">
+    <button id="downloadPNG">Download as PNG</button>
+    <button id="downloadJPEG">Download as JPEG</button>
+    <!-- <button id="downloadPDF">Download as PDF</button> -->
+  </div>
+
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+    mermaid.initialize({ startOnLoad: true });
+
+    document.getElementById('generateButton').addEventListener('click', function() {
+      const mermaidCode = document.getElementById('mermaidInput').value;
+
+      const diagramContainer = document.getElementById('diagramContainer');
+      diagramContainer.innerHTML = `  
+        <pre class="mermaid">
+          ${mermaidCode}
+        </pre>
+      `;
+
+      mermaid.contentLoaded();
+    });
+  </script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+
+        document.getElementById('downloadPNG').addEventListener('click', function() {
+        const diagramContainer = document.getElementById('diagramContainer');
+
+        html2canvas(diagramContainer, {
+          logging: true,
+          useCORS: true,  
+          backgroundColor: null,  
+          scale: 2  
+        }).then(function(canvas) {
+          const imageUrl = canvas.toDataURL('image/png');
+
+          
+          const link = document.createElement('a');
+          link.href = imageUrl;
+          link.download = 'diagram.png';
+          link.click();
+        }).catch(function(error) {
+          console.error('Error capturing the diagram as PNG:', error);
+        });
+      });
+
+
+      document.getElementById('downloadJPEG').addEventListener('click', function() {
+        const diagramContainer = document.getElementById('diagramContainer');
+
+        html2canvas(diagramContainer, {
+          logging: true,
+          useCORS: true,
+          backgroundColor: null,
+          scale: 2  
+        }).then(function(canvas) {
+          const imageUrl = canvas.toDataURL('image/jpeg', 1.0);  
+
+          const link = document.createElement('a');
+          link.href = imageUrl;
+          link.download = 'diagram.jpg';
+          link.click();
+        }).catch(function(error) {
+          console.error('Error capturing the diagram as JPEG:', error);
+        });
+      });
+
+
+    //   document.getElementById('downloadPDF').addEventListener('click', function() {
+    //     const diagramContainer = document.getElementById('diagramContainer');
+
+    //     setTimeout(() => {
+    //       mermaid.contentLoaded();
+
+    //       html2pdf().set({
+    //         margin: 10,
+    //         filename: 'mermaid_diagram.pdf',
+    //         image: { type: 'jpeg', quality: 0.98 },
+    //         html2canvas: { scale: 2, useCORS: true },
+    //         jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+    //       }).from(diagramContainer).save().catch(error => {
+    //         console.error('Error generating PDF:', error);
+    //         alert('Failed to generate PDF. Please check the console for more details.');
+    //       });
+    //     }, 2000); // Increased timeout to allow full rendering
+    //   });
+    });
+  </script>
+</body>
+</html>
